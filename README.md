@@ -77,7 +77,7 @@ flowchart TB
         ND[Netdata]
     end
     SEC --> MON
-
+```
 
 
 ## 📸 Screenshots
