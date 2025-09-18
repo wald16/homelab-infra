@@ -45,38 +45,47 @@ See `.env.example` for placeholders and required variables.
 flowchart TB
     %% ==== Acceso Externo ====
     subgraph EXT[🌍 External Access]
-        U[Users]
-        CF[Cloudflare Tunnel]
+        U[Users / Clients]
+        CF1[Cloudflare Tunnel → Entradas]
+        CF2[Cloudflare Tunnel → n8n]
+        CF3[Cloudflare Tunnel → Instagram Bot]
         WG[WireGuard VPN]
     end
 
-    U -->|HTTPS| CF
     U -->|VPN| WG
+    U -->|HTTPS| CF1
+    U -->|HTTPS| CF2
+    U -->|HTTPS| CF3
 
-    %% ==== Red Segura ====
-    subgraph SEC[🔒 Secure Network]
-        NG[Nginx Privacy Page]
-        N8N[n8n Automation]
-    end
-    CF --> NG
-    CF --> N8N
-    WG --> SEC
+    %% ==== Red Interna ====
+    subgraph NET[🏠 Internal Network]
+        subgraph APPS[🛠️ Applications]
+            R[ROMM] --> MDB[(MariaDB)]
+            EB[Entradas Backend] --> PG[(Postgres DB)]
+            EB --> FE[Frontend Apps]
+        end
 
-    %% ==== Aplicaciones ====
-    subgraph APPS[🛠️ Applications]
-        R[ROMM] --> MDB[(MariaDB)]
-        EB[Entradas Backend] --> PG[(Postgres DB)]
-        EB --> FE[Frontend Apps]
-    end
-    SEC --> APPS
+        subgraph MON[📊 Monitoring]
+            D[Dashy Dashboard]
+            P[Portainer]
+            ND[Netdata]
+        end
 
-    %% ==== Monitoreo ====
-    subgraph MON[📊 Monitoring]
-        D[Dashy Dashboard]
-        P[Portainer]
-        ND[Netdata]
+        subgraph EXP[🌐 Services Exposed]
+            N8N[n8n Automation]
+            NG[Nginx Privacy Page (Instagram Bot)]
+            FE2[Entradas Frontend / Backend]
+        end
     end
-    SEC --> MON
+
+    %% Conexiones túneles
+    CF1 --> FE2
+    CF2 --> N8N
+    CF3 --> NG
+
+    %% Conexión interna
+    WG --> NET
+
 ```
 
 
