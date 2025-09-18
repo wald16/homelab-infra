@@ -40,12 +40,15 @@ See `.env.example` for placeholders and required variables.
 
 ## 🖼️ Architecture
 
+### 🔒 Access & Security
 ```mermaid
 graph TD
-    subgraph External Access
-        U[Users] -->|HTTPS| CF[Cloudflare Tunnel]
-        U --> WG[WireGuard VPN]
-    end
+    U[Users] -->|HTTPS| CF[Cloudflare Tunnel]
+    U --> WG[WireGuard VPN]
+
+    CF --> N8N[n8n]
+    CF --> NG[Nginx Privacy Page]
+    WG --> Internal[Internal Services]
 
     subgraph Monitoring
         P[Portainer]
@@ -53,24 +56,20 @@ graph TD
         D[Dashy]
     end
 
-    subgraph Automation
-        N8N[n8n]
-        N8N --> CF
-    end
-
     subgraph Apps
         R[ROMM] --> DB[(MariaDB)]
         EB[Entradas Backend] --> PG[(Postgres DB)]
         EB --> FE[Frontend Apps]
     end
-```
 
+    subgraph Automation
+        N8N[n8n]
+    end
+```
 ---
 
 ## 📸 Screenshots
 
-
-```
 ### Dashy Dashboard
 ![Dashy](screenshots/dashy.png)
 
@@ -82,8 +81,6 @@ graph TD
 
 ### n8n Workflow
 ![n8n](screenshots/n8n.png)
-
-```
 
 ---
 
@@ -102,4 +99,5 @@ graph TD
 - **Secure tunneling** with Cloudflare  
 - **Monitoring & observability** with Netdata & healthchecks  
 - **Service orchestration** across databases, apps, and dashboards  
+- **Workflow automation** with n8n
 - **Workflow automation** with n8n  
