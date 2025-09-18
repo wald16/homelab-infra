@@ -1,0 +1,22 @@
+services:
+  vpn:
+    image: linuxserver/wireguard
+    container_name: wireguard
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SERVERURL=auto
+      - SERVERPORT=51820
+      - PEERS=3
+      - PEERDNS=1.1.1.1,1.0.0.1
+      - ALLOWEDIPS=0.0.0.0/0,::/0
+      - INTERNAL_SUBNET=10.13.13.0
+    volumes:
+      - ./config/wireguard:/config
+      - /lib/modules:/lib/modules
+    restart: unless-stopped

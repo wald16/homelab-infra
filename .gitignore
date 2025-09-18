@@ -1,0 +1,10 @@
+# No exponer secretos
+.env
+*.env
+.env.*
+!.env.example
+
+# Logs y temporales
+*.log
+logs/
+tmp/

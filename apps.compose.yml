@@ -1,0 +1,216 @@
+services:
+  samba:
+    image: crazymax/samba:latest
+    container_name: samba
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - TZ=America/Argentina/Buenos_Aires
+      - SAMBA_WORKGROUP=WORKGROUP
+      - SAMBA_SERVER_STRING=wald
+    volumes:
+      - ./samba/data:/data           # config de samba
+      - ./samba/share:/samba/share   # carpeta compartida
+
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy
+    restart: unless-stopped
+    ports:
+      - "10.13.13.1:4000:8080"
+    volumes:
+      - ./dashy/conf.yml:/app/user-data/conf.yml
+      - ./dashy/icons:/app/user-data/item-icons
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "10.13.13.1:9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    command: -H unix:///var/run/docker.sock
+
+  netdata:
+    image: netdata/netdata:latest
+    container_name: netdata
+    restart: unless-stopped
+    ports:
+      - "10.13.13.1:19999:19999"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./netdata:/var/lib/netdata
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:19999/api/v1/info"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  romm:
+    image: rommapp/romm:latest
+    container_name: romm
+    restart: unless-stopped
+    environment:
+      - DB_HOST=romm-db
+      - DB_NAME=romm
+      - DB_USER=romm-user
+      - DB_PASSWD=${DB_PASSWD}
+      - ROMM_AUTH_SECRET_KEY=${ROMM_AUTH_SECRET_KEY}
+      - HASHEOUS_API_ENABLED=true
+    volumes:
+      - romm_resources:/romm/resources
+      - romm_redis_data:/redis-data
+      - ./romm/library:/romm/library
+      - ./romm/assets:/romm/assets
+      - ./romm/config:/romm/config
+    ports:
+      - "10.13.13.1:8090:8080"
+    depends_on:
+      romm-db:
+        condition: service_healthy
+
+  romm-db:
+    image: mariadb:11
+    container_name: romm-db
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT}
+      - MARIADB_DATABASE=romm
+      - MARIADB_USER=romm-user
+      - MARIADB_PASSWORD=${DB_PASSWD}
+    volumes:
+      - romm_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    command: serve
+    volumes:
+      - ./ntfy/cache:/var/cache/ntfy
+      - ./ntfy/config:/etc/ntfy
+    ports:
+      - "10.13.13.1:40001:80"
+    restart: unless-stopped
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USR}     # cambialo
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PSWD}
+      - N8N_HOST=hooks.wald16.fun
+      - N8N_PORT=5678
+      - GENERIC_TIMEZONE=America/Argentina/Buenos_Aires
+      - N8N_SECURE_COOKIE=false
+      - WEBHOOK_URL=https://hooks.wald16.fun
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPT_KEY}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    ports:
+      - "10.13.13.1:5678:5678"
+      - "127.0.0.1:5678:5678"
+    restart: unless-stopped
+  cloudflared_n8n:
+    container_name: cloudflared_n8n
+    image: cloudflare/cloudflared:latest
+    network_mode: host
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_N8N}
+  privacy_page:
+    image: nginx:alpine
+    container_name: nginx-privacy
+    restart: unless-stopped
+    ports:
+      - "10.13.13.1:8888:80"
+    volumes:
+      - ./privacy_page/html:/usr/share/nginx/html:ro
+  nginx_redirect_ig_uri:
+    image: nginx:alpine
+    container_name: nginx-redirect-ig-uri
+    restart: unless-stopped
+    ports:
+      - "10.13.13.1:10203:80"
+    volumes:
+      - ./redirect_uri_ig/html/:/usr/share/nginx/html:ro
+  cloudflared_ig_bot:
+    container_name: cloudflared_ig_bot
+    image: cloudflare/cloudflared:latest
+    network_mode: host
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_IG_BOT}
+  entradas-backend:
+    build: ./entradas-fiesta
+    container_name: entradas-backend
+    restart: always
+    ports:
+      - "8743:8743"
+    env_file: ./entradas-fiesta/.env
+    environment:
+      - PORT=8743
+    volumes:
+      - ./entradas-fiesta:/app
+      - /app/node_modules
+  cloudflared_entradas:
+    container_name: cloudflared_entradas
+    image: cloudflare/cloudflared:latest
+    network_mode: host
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_ENTRADAS}
+  db_entradas:
+    container_name: db_entradas
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: wald16
+      POSTGRES_PASSWORD: ${DB_ENTRADAS_PASS}
+      POSTGRES_DB: entradas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  validador-entradas:
+    build: ./validador-entradas
+    container_name: validador-entradas
+    restart: always
+    ports:
+      - "3110:80"
+  halloween-frontend:
+    build: ./halloween-frontend
+    container_name: halloween-frontend
+    restart: always
+    ports:
+      - "2298:80"
+volumes:
+  romm_mysql_data:
+  romm_resources:
+  romm_redis_data:
+  postgres_data:
+
