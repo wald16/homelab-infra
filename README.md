@@ -73,7 +73,7 @@ flowchart TB
 
         subgraph EXP[🌐 Services Exposed]
             N8N[n8n Automation]
-            NG[Nginx Privacy Page (Instagram Bot)]
+            NG[Nginx Page - Instagram Bot]
             FE2[Entradas Frontend / Backend]
         end
     end
