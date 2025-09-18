@@ -42,31 +42,43 @@ See `.env.example` for placeholders and required variables.
 
 ### 🔒 Access & Security
 ```mermaid
-graph TD
-    U[Users] -->|HTTPS| CF[Cloudflare Tunnel]
-    U --> WG[WireGuard VPN]
-
-    CF --> N8N[n8n]
-    CF --> NG[Nginx Privacy Page]
-    WG --> Internal[Internal Services]
-
-    subgraph Monitoring
-        P[Portainer]
-        ND[Netdata]
-        D[Dashy]
+flowchart TB
+    %% ==== Acceso Externo ====
+    subgraph EXT[🌍 External Access]
+        U[Users]
+        CF[Cloudflare Tunnel]
+        WG[WireGuard VPN]
     end
 
-    subgraph Apps
-        R[ROMM] --> DB[(MariaDB)]
+    U -->|HTTPS| CF
+    U -->|VPN| WG
+
+    %% ==== Red Segura ====
+    subgraph SEC[🔒 Secure Network]
+        NG[Nginx Privacy Page]
+        N8N[n8n Automation]
+    end
+    CF --> NG
+    CF --> N8N
+    WG --> SEC
+
+    %% ==== Aplicaciones ====
+    subgraph APPS[🛠️ Applications]
+        R[ROMM] --> MDB[(MariaDB)]
         EB[Entradas Backend] --> PG[(Postgres DB)]
         EB --> FE[Frontend Apps]
     end
+    SEC --> APPS
 
-    subgraph Automation
-        N8N[n8n]
+    %% ==== Monitoreo ====
+    subgraph MON[📊 Monitoring]
+        D[Dashy Dashboard]
+        P[Portainer]
+        ND[Netdata]
     end
-```
----
+    SEC --> MON
+
+
 
 ## 📸 Screenshots
 
