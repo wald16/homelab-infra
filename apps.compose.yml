@@ -140,77 +140,114 @@ services:
     command: tunnel run
     environment:
     - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_N8N}
-  privacy_page:
+
+# --- Servicios dados de baja, se mantienen comentados por si se retoman ---
+#  privacy_page:
+#    image: nginx:alpine
+#    container_name: nginx-privacy
+#    restart: unless-stopped
+#    ports:
+#      - "10.13.13.1:8888:80"
+#    volumes:
+#      - ./privacy_page/html:/usr/share/nginx/html:ro
+#  nginx_redirect_ig_uri:
+#    image: nginx:alpine
+#    container_name: nginx-redirect-ig-uri
+#    restart: unless-stopped
+#    ports:
+#      - "10.13.13.1:10203:80"
+#    volumes:
+#      - ./redirect_uri_ig/html/:/usr/share/nginx/html:ro
+#  cloudflared_ig_bot:
+#    container_name: cloudflared_ig_bot
+#    image: cloudflare/cloudflared:latest
+#    network_mode: host
+#    restart: unless-stopped
+#    command: tunnel run
+#    environment:
+#    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_IG_BOT}
+#  entradas-backend:
+#    build: ./entradas-fiesta
+#    container_name: entradas-backend
+#    restart: always
+#    ports:
+#      - "8743:8743"
+#    env_file: ./entradas-fiesta/.env
+#    environment:
+#      - PORT=8743
+#    volumes:
+#      - ./entradas-fiesta:/app
+#      - /app/node_modules
+#  cloudflared_entradas:
+#    container_name: cloudflared_entradas
+#    image: cloudflare/cloudflared:latest
+#    network_mode: host
+#    restart: unless-stopped
+#    command: tunnel run
+#    environment:
+#    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_ENTRADAS}
+#  db_entradas:
+#    container_name: db_entradas
+#    image: postgres:15
+#    restart: always
+#    environment:
+#      POSTGRES_USER: wald16
+#      POSTGRES_PASSWORD: ${DB_ENTRADAS_PASS}
+#      POSTGRES_DB: entradas
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#  validador-entradas:
+#    build: ./validador-entradas
+#    container_name: validador-entradas
+#    restart: always
+#    ports:
+#      - "3110:80"
+#  halloween-frontend:
+#    build: ./halloween-frontend
+#    container_name: halloween-frontend
+#    restart: always
+#    ports:
+#      - "2298:80"
+
+  forma:
     image: nginx:alpine
-    container_name: nginx-privacy
+    container_name: forma
     restart: unless-stopped
     ports:
-      - "10.13.13.1:8888:80"
+      - "10.13.13.1:3030:80"
     volumes:
-      - ./privacy_page/html:/usr/share/nginx/html:ro
-  nginx_redirect_ig_uri:
-    image: nginx:alpine
-    container_name: nginx-redirect-ig-uri
-    restart: unless-stopped
-    ports:
-      - "10.13.13.1:10203:80"
-    volumes:
-      - ./redirect_uri_ig/html/:/usr/share/nginx/html:ro
-  cloudflared_ig_bot:
-    container_name: cloudflared_ig_bot
+      - ./forma/public:/usr/share/nginx/html:ro
+
+  tunnel_forma:
+    container_name: tunnel_forma
     image: cloudflare/cloudflared:latest
     network_mode: host
     restart: unless-stopped
     command: tunnel run
     environment:
-    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_IG_BOT}
-  entradas-backend:
-    build: ./entradas-fiesta
-    container_name: entradas-backend
-    restart: always
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_FORMA}
+
+  portfolio:
+    image: nginx:alpine
+    container_name: portfolio
+    restart: unless-stopped
     ports:
-      - "8743:8743"
-    env_file: ./entradas-fiesta/.env
-    environment:
-      - PORT=8743
+      - "10.13.13.1:3040:80"
     volumes:
-      - ./entradas-fiesta:/app
-      - /app/node_modules
-  cloudflared_entradas:
-    container_name: cloudflared_entradas
+      - ./portfolio/public:/usr/share/nginx/html:ro
+  cloudflared_portfolio:
+    container_name: cloudflared_portfolio
     image: cloudflare/cloudflared:latest
     network_mode: host
     restart: unless-stopped
     command: tunnel run
     environment:
-    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_ENTRADAS}
-  db_entradas:
-    container_name: db_entradas
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: wald16
-      POSTGRES_PASSWORD: ${DB_ENTRADAS_PASS}
-      POSTGRES_DB: entradas
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-  validador-entradas:
-    build: ./validador-entradas
-    container_name: validador-entradas
-    restart: always
-    ports:
-      - "3110:80"
-  halloween-frontend:
-    build: ./halloween-frontend
-    container_name: halloween-frontend
-    restart: always
-    ports:
-      - "2298:80"
+    - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_PORTFOLIO}
+
 volumes:
   romm_mysql_data:
   romm_resources:
   romm_redis_data:
   postgres_data:
-

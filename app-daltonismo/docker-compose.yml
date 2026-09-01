@@ -1,0 +1,14 @@
+services:
+  vision:
+    build: .
+    ports:
+      - "10.13.13.1:1366:80"
+    restart: unless-stopped
+  cloudflare_tunnel:
+    container_name: tunnel_daltonismo
+    image: cloudflare/cloudflared:latest
+    network_mode: host
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+    - TUNNEL_TOKEN=${TUNNEL_TOKEN}

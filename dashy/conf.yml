@@ -1,0 +1,117 @@
+pageInfo:
+  title: Mi Home
+  description: Accesos de mi server (VPN only)
+  navLinks:
+    - title: GitHub
+      path: https://github.com/wald16
+sections:
+  - name: Administración
+    icon: admin.svg
+    items:
+      - title: Portainer
+        description: Gestioná tus containers
+        icon: docker.svg
+        url: https://10.13.13.1:9443
+        id: 0_1593_portainer
+      - title: Samba Share
+        description: Carpeta compartida
+        icon: folder.svg
+        url: smb://10.13.13.1/compartido
+        id: 1_1593_sambashare
+  - name: Monitoring
+    icon: monitor.svg
+    items:
+      - title: Netdata
+        description: Monitoreo en tiempo real
+        icon: chart.svg
+        url: http://10.13.13.1:19999
+        id: 0_1062_netdata
+      - title: ntfy
+        description: Recibir notificaciones
+        icon: ntfy.svg
+        url: http://10.13.13.1:40001/home-atzi0z583y
+        id: 1_1062_ntfy
+  - name: Gaming
+    icon: gamepad.svg
+    items:
+      - title: Emulador
+        description: Tu emulador de juegos
+        icon: gamepad.svg
+        url: http://10.13.13.1:8090
+        id: 0_595_emulador
+  - name: Automation
+    icon: auto.svg
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: n8n
+        description: automation tool
+        icon: n8n.svg
+        url: http://10.13.13.1:5678
+        id: 0_1057_nn
+  - name: Páginas
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: Entradas
+        url: https://entradas.wald16.fun
+        id: 0_835_entradas
+      - title: Scan QR
+        url: https://validador.wald16.fun
+        id: 1_835_scanqr
+appConfig:
+  theme: callisto
+  layout: auto
+  iconSize: large
+  startingView: minimal
+  defaultOpeningMethod: newtab
+  statusCheck: false
+  statusCheckInterval: 0
+  faviconApi: allesedv
+  routingMode: history
+  enableMultiTasking: false
+  widgetsAlwaysUseProxy: false
+  webSearch:
+    disableWebSearch: false
+    searchEngine: duckduckgo
+    openingMethod: newtab
+    searchBangs: {}
+  enableFontAwesome: true
+  enableMaterialDesignIcons: false
+  hideComponents:
+    hideHeading: false
+    hideNav: false
+    hideSearch: false
+    hideSettings: false
+    hideFooter: false
+  auth:
+    enableGuestAccess: false
+    users: []
+    enableOidc: false
+    oidc:
+      adminRole: 'false'
+      adminGroup: 'false'
+    enableHeaderAuth: false
+    headerAuth:
+      userHeader: REMOTE_USER
+      proxyWhitelist: []
+    enableKeycloak: false
+  showSplashScreen: false
+  preventWriteToDisk: false
+  preventLocalSave: false
+  disableConfiguration: false
+  disableConfigurationForNonAdmin: false
+  allowConfigEdit: true
+  enableServiceWorker: false
+  disableContextMenu: false
+  disableUpdateChecks: false
+  disableSmartSort: false
+  enableErrorReporting: false
